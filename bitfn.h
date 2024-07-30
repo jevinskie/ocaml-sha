@@ -24,50 +24,42 @@
 #undef swap32
 #undef swap64
 
-static inline unsigned int rol32(unsigned int word, unsigned int shift)
-{
-        return (word << shift) | (word >> (32 - shift));
+static inline unsigned int rol32(unsigned int word, unsigned int shift) {
+    return (word << shift) | (word >> (32 - shift));
 }
 
-static inline unsigned int ror32(unsigned int word, unsigned int shift)
-{
-	return (word >> shift) | (word << (32 - shift));
+static inline unsigned int ror32(unsigned int word, unsigned int shift) {
+    return (word >> shift) | (word << (32 - shift));
 }
 
-static inline uint64_t rol64(uint64_t word, unsigned int shift)
-{
-        return (word << shift) | (word >> (64 - shift));
+static inline uint64_t rol64(uint64_t word, unsigned int shift) {
+    return (word << shift) | (word >> (64 - shift));
 }
 
-static inline uint64_t ror64(uint64_t word, unsigned int shift)
-{
-	return (word >> shift) | (word << (64 - shift));
+static inline uint64_t ror64(uint64_t word, unsigned int shift) {
+    return (word >> shift) | (word << (64 - shift));
 }
 
 #if (defined(__i386__) || defined(__x86_64__)) && !defined(NO_INLINE_ASM)
-static inline unsigned int swap32(unsigned int a)
-{
-	asm ("bswap %0" : "=r" (a) : "0" (a));
-	return a;
+static inline unsigned int swap32(unsigned int a) {
+    asm("bswap %0" : "=r"(a) : "0"(a));
+    return a;
 }
 #else
-static inline unsigned int swap32(unsigned int a)
-{
-	return (a << 24) | ((a & 0xff00) << 8) | ((a >> 8) & 0xff00) | (a >> 24);
+static inline unsigned int swap32(unsigned int a) {
+    return (a << 24) | ((a & 0xff00) << 8) | ((a >> 8) & 0xff00) | (a >> 24);
 }
 #endif
 
 #if defined(__x86_64__) && !defined(NO_INLINE_ASM)
-static inline uint64_t swap64(uint64_t a)
-{
-	asm ("bswap %0" : "=r" (a) : "0" (a));
-	return a;
+static inline uint64_t swap64(uint64_t a) {
+    asm("bswap %0" : "=r"(a) : "0"(a));
+    return a;
 }
 #else
-static inline uint64_t swap64(uint64_t a)
-{
-	return ((uint64_t) swap32((unsigned int) (a >> 32))) |
-	       (((uint64_t) swap32((unsigned int) a)) << 32);
+static inline uint64_t swap64(uint64_t a) {
+    return ((uint64_t)swap32((unsigned int)(a >> 32))) |
+           (((uint64_t)swap32((unsigned int)a)) << 32);
 }
 #endif
 
