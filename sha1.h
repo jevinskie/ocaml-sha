@@ -33,6 +33,10 @@ typedef struct {
     unsigned int digest[5];
 } sha1_digest;
 
+typedef struct {
+    unsigned int digest[4];
+} sha1_128_digest;
+
 /**
  * sha1_init - Init SHA1 context
  */
@@ -278,6 +282,35 @@ static void sha1_finalize(struct sha1_ctx *ctx, sha1_digest *out) {
 }
 
 /**
+ * sha1_128_finalize - Finalize the context and create the truncated SHA1-128 digest
+ */
+static void sha1_128_finalize(struct sha1_ctx *ctx, sha1_128_digest *out) {
+    static unsigned char padding[64] = {
+        0x80,
+    };
+    unsigned int bits[2];
+    unsigned int index, padlen;
+
+    /* add padding and update data with it */
+    bits[0] = cpu_to_be32((unsigned int)(ctx->sz >> 29));
+    bits[1] = cpu_to_be32((unsigned int)(ctx->sz << 3));
+
+    /* pad out to 56 */
+    index  = (unsigned int)(ctx->sz & 0x3f);
+    padlen = (index < 56) ? (56 - index) : ((64 + 56) - index);
+    sha1_update(ctx, padding, padlen);
+
+    /* append length */
+    sha1_update(ctx, (unsigned char *)bits, sizeof(bits));
+
+    /* output hash */
+    out->digest[0] = cpu_to_be32(ctx->h[0]);
+    out->digest[1] = cpu_to_be32(ctx->h[1]);
+    out->digest[2] = cpu_to_be32(ctx->h[2]);
+    out->digest[3] = cpu_to_be32(ctx->h[3]);
+}
+
+/**
  * sha1_to_bin - Transform the SHA1 digest into a binary data
  */
 static void sha1_to_bin(sha1_digest *digest, char *out) {
@@ -301,6 +334,16 @@ static void sha1_to_hex(sha1_digest *digest, char *out) {
 }
 
 /**
+ * sha1_128_to_hex - Transform the truncated SHA1-128 digest into a readable data
+ */
+static void sha1_128_to_hex(sha1_128_digest *digest, char *out) {
+
+#define D(i) (cpu_to_be32(digest->digest[i]))
+    snprintf(out, 33, "%08x%08x%08x%08x", D(0), D(1), D(2), D(3));
+#undef D
+}
+
+/**
  * sha1_of_bin - Transform binary data into the SHA1 digest
  */
 static void sha1_of_bin(const char *in, sha1_digest *digest) {
@@ -314,6 +357,15 @@ static void sha1_of_hex(const char *in, sha1_digest *digest) {
     if (strlen(in) != 40)
         return;
     of_hex((unsigned char *)digest->digest, in, 40);
+}
+
+/**
+ * sha1_128_of_hex - Transform readable data into the truncated SHA1-128 digest
+ */
+static void sha1_128_of_hex(const char *in, sha1_128_digest *digest) {
+    if (strlen(in) != 32)
+        return;
+    of_hex((unsigned char *)digest->digest, in, 32);
 }
 
 #endif

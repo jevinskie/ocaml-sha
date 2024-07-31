@@ -28,6 +28,13 @@ let ex_strings_sha1 =
     (dog, "2fd4e1c67a2d28fced849ee1bb76e7391b93eb12");
   ]
 
+let ex_strings_sha1_128 =
+  [
+    ("", "da39a3ee5e6b4b0d3255bfef95601890");
+    (cog, "de9f2c7fd25e1b3afad3e85a0bd17d9b");
+    (dog, "2fd4e1c67a2d28fced849ee1bb76e739");
+  ]
+
 let ex_strings_sha256 =
   [
     ("", "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855");
@@ -81,6 +88,7 @@ let ex_channels_sha512 =
   ]
 
 let stringfct_hex_sha1 s = Sha1.to_hex (Sha1.string s)
+let stringfct_hex_sha1_128 s = Sha1.to_hex (Sha1.string s)
 let stringfct_hex_sha256 s = Sha256.to_hex (Sha256.string s)
 let stringfct_hex_sha512 s = Sha512.to_hex (Sha512.string s)
 let stringfct_bin_sha1 s = Sha1.to_bin (Sha1.string s)
@@ -298,6 +306,8 @@ let suite =
   >::: [
          "SHA1 example strings"
          >:: test_strings stringfct_hex_sha1 ex_strings_sha1;
+         "SHA1-128 example strings"
+         >:: test_strings stringfct_hex_sha1_128 ex_strings_sha1_128;
          "SHA1 reading a file" >:: test_file filefct_sha1 ex_files_sha1;
          "SHA1 reading few byte from channel"
          >:: test_channel channelfct_sha1 ex_channels_sha1;

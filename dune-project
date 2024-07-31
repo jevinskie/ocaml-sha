@@ -21,7 +21,8 @@
  "Nicolás Ojeda Bär"
  "Christopher Zimmermann"
  "Thomas Leonard"
- "Antonin Décimo")
+ "Antonin Décimo"
+ "Jevin Sweval")
 
 (maintainers dave@recoil.org)
 

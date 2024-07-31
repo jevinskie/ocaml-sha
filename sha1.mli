@@ -24,8 +24,22 @@ type buf =
   (char, Bigarray.int8_unsigned_elt, Bigarray.c_layout) Bigarray.Array1.t
 (** Buffer type. *)
 
-type t
+type t_160
+(** 160-bit full digest type - opaque. *)
+
+type t_128
+(** 128-bit truncated digest type - opaque. *)
+
+type t =
+  | Full of t_160
+  | Trunc of t_128
 (** Digest type - opaque. *)
+
+val zero_160 : t_160
+(** The zero full digest. *)
+
+val zero_128 : t_128
+(** The zero 128-bit truncated digest. *)
 
 val zero : t
 (** The zero digest. *)
@@ -51,14 +65,27 @@ external update_buffer : ctx -> buf -> unit = "stub_sha1_update_bigarray"
 (** [Sha1.update_buffer ctx a] updates the context with [a]. Runs
    parallel to other threads if any exist. *)
 
-external finalize : ctx -> t = "stub_sha1_finalize"
-(** Finalize the context and return digest. *)
+external finalize_160 : ctx -> t_160 = "stub_sha1_finalize"
+(** Finalize the context and return the full digest. *)
+
+external finalize_128 : ctx -> t_128 = "stub_sha1_128_finalize"
+(** Finalize the context and return 128-bit truncated digest. *)
+
+val finalize : ctx -> t
+(** Return the digest of the given string. *)
 
 external copy : ctx -> ctx = "stub_sha1_copy"
 (** Return a copy of the context. *)
 
+val string_160 : string -> t_160
+(** Return the full digest of the given string. *)
+
+val string_128 : string -> t_128
+(** Return the 128-bit truncated digest of the given string. *)
+
 val string : string -> t
 (** Return the digest of the given string. *)
+
 
 val substring : string -> int -> int -> t
 (** [Sha1.substring s ofs len] returns the digest of the substring of
@@ -88,6 +115,14 @@ val input : in_channel -> t
 
 val to_bin : t -> string
 (** Return a binary representation of the given digest. *)
+
+val to_hex_160 : t_160 -> string
+(** Return a printable hexadecimal representation of the given
+   full digest. *)
+
+val to_hex_128 : t_128 -> string
+(** Return a printable hexadecimal representation of the given
+   128-bit truncated digest. *)
 
 val to_hex : t -> string
 (** Return a printable hexadecimal representation of the given

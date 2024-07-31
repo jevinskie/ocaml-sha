@@ -21,6 +21,7 @@ authors: [
   "Christopher Zimmermann"
   "Thomas Leonard"
   "Antonin Décimo"
+  "Jevin Sweval"
 ]
 license: "ISC"
 homepage: "https://github.com/djs55/ocaml-sha"

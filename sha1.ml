@@ -21,7 +21,12 @@ type ctx
 type buf =
   (char, Bigarray.int8_unsigned_elt, Bigarray.c_layout) Bigarray.Array1.t
 
-type t
+type t_160
+type t_128
+(* type t = Full of t_160 | Trunc of t_128 *)
+type t =
+  | Full of t_160
+  | Trunc of t_128
 
 external init : unit -> ctx = "stub_sha1_init"
 
@@ -29,14 +34,26 @@ external unsafe_update_substring : ctx -> string -> int -> int -> unit
   = "stub_sha1_update"
 
 external update_buffer : ctx -> buf -> unit = "stub_sha1_update_bigarray"
-external finalize : ctx -> t = "stub_sha1_finalize"
+external finalize_160 : ctx -> t_160 = "stub_sha1_finalize"
+external finalize_128 : ctx -> t_128 = "stub_sha1_128_finalize"
 external copy : ctx -> ctx = "stub_sha1_copy"
 external to_bin : t -> string = "stub_sha1_to_bin"
-external to_hex : t -> string = "stub_sha1_to_hex"
+external to_hex_160 : t_160 -> string = "stub_sha1_to_hex"
+external to_hex_128 : t_128 -> string = "stub_sha1_128_to_hex"
 external of_bin : bytes -> t = "stub_sha1_of_bin"
 external of_hex : string -> t = "stub_sha1_of_hex"
 external file_fast : string -> t = "stub_sha1_file"
 external equal : t -> t -> bool = "stub_sha1_equal"
+
+let finalize ctx d =
+  match d with
+  | Full d -> Full (finalize_160 ctx)
+  | Trunc d -> Trunc (finalize_128 ctx)
+
+let to_hex d =
+  match d with
+  | Full d -> to_hex_160 d
+  | Trunc d -> to_hex_128 d
 
 let blksize = 4096
 
@@ -46,12 +63,25 @@ let update_substring ctx s ofs len =
 
 let update_string ctx s = unsafe_update_substring ctx s 0 (String.length s)
 
-let string s =
+let string_160 s =
   let ctx = init () in
   unsafe_update_substring ctx s 0 (String.length s);
-  finalize ctx
+  Full (finalize_160 ctx)
 
-let zero = string ""
+let string_128 s =
+  let ctx = init () in
+  unsafe_update_substring ctx s 0 (String.length s);
+  Trunc (finalize_128 ctx)
+
+let string s =
+  match s with
+  | Full t_160 -> string_160
+  | Trunc t_128 -> string_128
+
+let zero d =
+  match d with
+  | Full d -> string ""
+  | Trunc d -> string ""
 
 let substring s ofs len =
   if len <= 0 && String.length s < ofs + len then invalid_arg "substring";
@@ -79,7 +109,7 @@ let channel chan len =
 
 let file name =
   let chan = open_in_bin name in
-  let digest = channel chan (-1) in
+  let digest = Full (channel chan (-1)) in
   close_in chan;
   digest
 

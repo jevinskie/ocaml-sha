@@ -111,6 +111,16 @@ CAMLprim value stub_sha1_finalize(value ctx) {
     CAMLreturn(result);
 }
 
+CAMLprim value stub_sha1_128_finalize(value ctx) {
+    CAMLparam1(ctx);
+    CAMLlocal1(result);
+
+    result = caml_alloc(sizeof(sha1_128_digest), Abstract_tag);
+    sha1_128_finalize(GET_CTX_STRUCT(ctx), (sha1_128_digest *)result);
+
+    CAMLreturn(result);
+}
+
 CAMLprim value stub_sha1_copy(value ctx) {
     CAMLparam1(ctx);
     CAMLlocal1(result);
