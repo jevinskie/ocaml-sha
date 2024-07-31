@@ -30,10 +30,7 @@ type t_160
 type t_128
 (** 128-bit truncated digest type - opaque. *)
 
-type t =
-  | Full of t_160
-  | Trunc of t_128
-(** Digest type - opaque. *)
+type t = Full of t_160 | Trunc of t_128  (** Digest type - opaque. *)
 
 val zero_160 : t_160
 (** The zero full digest. *)
@@ -85,7 +82,6 @@ val string_128 : string -> t_128
 
 val string : string -> t
 (** Return the digest of the given string. *)
-
 
 val substring : string -> int -> int -> t
 (** [Sha1.substring s ofs len] returns the digest of the substring of

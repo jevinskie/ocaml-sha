@@ -23,10 +23,9 @@ type buf =
 
 type t_160
 type t_128
+
 (* type t = Full of t_160 | Trunc of t_128 *)
-type t =
-  | Full of t_160
-  | Trunc of t_128
+type t = Full of t_160 | Trunc of t_128
 
 external init : unit -> ctx = "stub_sha1_init"
 
@@ -50,11 +49,7 @@ let finalize ctx d =
   | Full d -> Full (finalize_160 ctx)
   | Trunc d -> Trunc (finalize_128 ctx)
 
-let to_hex d =
-  match d with
-  | Full d -> to_hex_160 d
-  | Trunc d -> to_hex_128 d
-
+let to_hex d = match d with Full d -> to_hex_160 d | Trunc d -> to_hex_128 d
 let blksize = 4096
 
 let update_substring ctx s ofs len =
@@ -74,14 +69,9 @@ let string_128 s =
   Trunc (finalize_128 ctx)
 
 let string s =
-  match s with
-  | Full t_160 -> string_160
-  | Trunc t_128 -> string_128
+  match s with Full t_160 -> string_160 | Trunc t_128 -> string_128
 
-let zero d =
-  match d with
-  | Full d -> string ""
-  | Trunc d -> string ""
+let zero d = match d with Full d -> string "" | Trunc d -> string ""
 
 let substring s ofs len =
   if len <= 0 && String.length s < ofs + len then invalid_arg "substring";
